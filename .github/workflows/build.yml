@@ -1,0 +1,66 @@
+name: Build & Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-pi4:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install ARM64 cross-compiler and FreeType
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            gcc-aarch64-linux-gnu \
+            libfreetype6-dev \
+            pkg-config \
+            binutils-aarch64-linux-gnu
+
+      - name: Install FreeType for AArch64
+        run: |
+          sudo dpkg --add-architecture arm64
+          sudo sed -i 's/^deb /deb [arch=amd64] /' /etc/apt/sources.list
+          echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports jammy main universe" \
+            | sudo tee -a /etc/apt/sources.list
+          sudo apt-get update
+          sudo apt-get install -y libfreetype6-dev:arm64
+
+      - name: Build for Pi 4 (AArch64)
+        run: |
+          make clean
+          make CC=aarch64-linux-gnu-gcc \
+               ARCHFLAGS="-mcpu=cortex-a72" \
+               PKG_CONFIG="pkg-config --define-prefix"
+          aarch64-linux-gnu-strip pidash
+          mv pidash pidash-pi4-aarch64
+
+      - name: Upload release binary
+        uses: softprops/action-gh-release@v2
+        with:
+          files: pidash-pi4-aarch64
+          body: |
+            ## pidash ${{ github.ref_name }}
+
+            Raspberry Pi TFT dashboard for 160×128 RGB565 framebuffer.
+
+            ### Quick install (Pi 4 / Pi 5)
+```bash
+            wget https://github.com/circuito-suman/PiDash/releases/download/${{ github.ref_name }}/pidash-pi4-aarch64
+            chmod +x pidash-pi4-aarch64
+            sudo cp pidash-pi4-aarch64 /usr/local/bin/pidash
+            sudo cp pidash.service /etc/systemd/system/
+            sudo systemctl enable --now pidash
+```
+
+            ### Dependencies
+```bash
+            sudo apt install libfreetype6 docker.io tailscale
+```
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
