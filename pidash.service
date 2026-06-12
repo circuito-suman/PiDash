@@ -1,0 +1,18 @@
+[Unit]
+Description=Pi TFT Dashboard
+After=network.target docker.service tailscaled.service
+Wants=docker.service tailscaled.service
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/pidash
+Restart=always
+RestartSec=3
+User=root
+ExecStartPre=/bin/sleep 5
+Environment=DISPLAY=:0
+CPUQuota=15%
+MemoryMax=32M
+
+[Install]
+WantedBy=multi-user.target
