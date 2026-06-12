@@ -232,3 +232,25 @@ fbset -fb /dev/fb0 -i
 # timings ...
 # rgba 5/11,6/5,5/0,0/0
 ```
+```bash
+# My configurations
+
+mode "160x128"
+    geometry 160 128 160 128 16
+    timings 0 0 0 0 0 0 0
+    nonstd 1
+    rgba 5/11,6/5,5/0,0/0
+endmode
+
+Frame buffer device information:
+    Name        : fb_st7735r
+    Address     : 0
+    Size        : 40960
+    Type        : PACKED PIXELS
+    Visual      : TRUECOLOR
+    XPanStep    : 0
+    YPanStep    : 0
+    YWrapStep   : 0
+    LineLength  : 320
+    Accelerator : No
+'''
