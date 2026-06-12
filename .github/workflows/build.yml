@@ -25,9 +25,25 @@ jobs:
       - name: Install FreeType for AArch64
         run: |
           sudo dpkg --add-architecture arm64
-          sudo sed -i 's/^deb /deb [arch=amd64] /' /etc/apt/sources.list
-          echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports jammy main universe" \
-            | sudo tee -a /etc/apt/sources.list
+
+          # 1. Restrict default Ubuntu 24.04 repos to amd64 only
+          if [ -f /etc/apt/sources.list.d/ubuntu.sources ]; then
+            sudo sed -i 's/^Types: deb/Types: deb\nArchitectures: amd64/' /etc/apt/sources.list.d/ubuntu.sources
+          fi
+          
+          # Catch any leftover legacy lists
+          sudo sed -i 's/^deb /deb [arch=amd64] /g' /etc/apt/sources.list
+
+          # 2. Add the proper Ubuntu Ports for arm64 (targeting Noble)
+          cat <<EOF | sudo tee /etc/apt/sources.list.d/ubuntu-ports-arm64.sources
+          Types: deb
+          URIs: http://ports.ubuntu.com/ubuntu-ports
+          Suites: noble noble-updates noble-backports noble-security
+          Components: main universe restricted multiverse
+          Architectures: arm64
+          EOF
+
+          # 3. Update and install
           sudo apt-get update
           sudo apt-get install -y libfreetype6-dev:arm64
 
