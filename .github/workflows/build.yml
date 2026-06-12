@@ -50,17 +50,17 @@ jobs:
             Raspberry Pi TFT dashboard for 160×128 RGB565 framebuffer.
 
             ### Quick install (Pi 4 / Pi 5)
-```bash
-            wget https://github.com/circuito-suman/PiDash/releases/download/${{ github.ref_name }}/pidash-pi4-aarch64
+            ```bash
+            wget [https://github.com/circuito-suman/PiDash/releases/download/$](https://github.com/circuito-suman/PiDash/releases/download/$){{ github.ref_name }}/pidash-pi4-aarch64
             chmod +x pidash-pi4-aarch64
             sudo cp pidash-pi4-aarch64 /usr/local/bin/pidash
             sudo cp pidash.service /etc/systemd/system/
             sudo systemctl enable --now pidash
-```
+            ```
 
             ### Dependencies
-```bash
+            ```bash
             sudo apt install libfreetype6 docker.io tailscale
-```
+            ```
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
